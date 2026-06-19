@@ -1333,13 +1333,22 @@ export const API_V1_SPEC = {
 	// ────────────────────────────────────────────────
 
 	"POST /oauth/token": {
-		description: "Exchange an OAuth2 authorization code for an API token.",
+		description:
+			"Exchange an OAuth2 authorization code for an API token. Supports both the standard client_secret flow and the PKCE flow (RFC 7636). For PKCE, omit client_secret and provide code_verifier instead.",
 		input: z.object({
 			client_id: z.string(),
-			client_secret: z.string(),
+			client_secret: z.string().optional(),
 			grant_type: z.literal("authorization_code"),
 			redirect_uri: z.string(),
 			code: z.string(),
+			// RFC 7636 §4.1: code_verifier is 43-128 chars from the unreserved set.
+			code_verifier: z
+				.string()
+				.regex(
+					/^[A-Za-z0-9._~-]{43,128}$/u,
+					"code_verifier must be 43-128 unreserved characters.",
+				)
+				.optional(),
 		}),
 		output: z.strictObject({
 			userID: z.number(),
@@ -1351,8 +1360,19 @@ export const API_V1_SPEC = {
 	},
 
 	"POST /oauth/create-code": {
-		description: "Create an OAuth2 authorization code (session auth required).",
-		input: z.object({}),
+		description:
+			"Create an OAuth2 authorization code (session auth required). Pass code_challenge and code_challenge_method to use the PKCE flow (RFC 7636).",
+		input: z.object({
+			// BASE64URL(SHA256(verifier)) is always exactly 43 unpadded base64url chars (RFC 7636 §4.2).
+			code_challenge: z
+				.string()
+				.regex(
+					/^[A-Za-z0-9_-]{43}$/u,
+					"code_challenge must be a 43-character base64url SHA-256 digest.",
+				)
+				.optional(),
+			code_challenge_method: z.literal("S256").optional(),
+		}),
 		output: z.strictObject({
 			code: z.string(),
 			userID: z.number(),
