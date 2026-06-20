@@ -11,7 +11,6 @@ import GoalLink from "#components/util/GoalLink";
 import LinkButton from "#components/util/LinkButton";
 import Loading from "#components/util/Loading";
 import useApiQuery from "#components/util/query/useApiQuery";
-import WorkerVisualizer from "#components/workers/WorkerVisualizer";
 import { UserContext } from "#context/UserContext";
 import { UserSettingsContext } from "#context/UserSettingsContext";
 import { WindowContext } from "#context/WindowContext";
@@ -72,8 +71,6 @@ function DashboardLoggedIn({ user }: { user: UserDocument }) {
 					<UserGameProfiles />
 				</Route>
 				<Route exact path="/global-activity">
-					<WorkerVisualizer />
-					<hr />
 					<Activity url="/ublock-blocks-this" />
 				</Route>
 			</Switch>
