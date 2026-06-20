@@ -1,12 +1,9 @@
 import type { Action, CronTask, CronTaskExecution, JobQueue } from "tachi-db";
 
 import { ONE_HOUR } from "#lib/constants/time";
-import {
-	SELECT_CRON_TASK,
-	SELECT_CRON_TASK_EXECUTION,
-	SELECT_JOB_QUEUE,
-} from "#lib/db-formats/admin-jobs";
+import { SELECT_CRON_TASK, SELECT_JOB_QUEUE } from "#lib/db-formats/admin-jobs";
 import DB from "#services/pg/db";
+import { sql } from "kysely";
 
 export const ADMIN_PAGE_SIZE = 50;
 
@@ -161,11 +158,22 @@ export function GetCronTasks(): Promise<Array<CronTask>> {
 		.execute();
 }
 
-export function GetCronTaskExecutions(): Promise<Array<CronTaskExecution>> {
-	return DB.selectFrom("cron_task_execution")
-		.select(SELECT_CRON_TASK_EXECUTION)
-		.where("cron_task_execution.scheduled_at", ">=", adminRecentSinceIso(24 * 7))
-		.orderBy("cron_task_execution.scheduled_at", "desc")
-		.limit(100)
-		.execute();
+/** Most recent executions per task, capped at 20 per task_id to prevent high-frequency tasks from crowding out others. */
+export async function GetCronTaskExecutions(): Promise<Array<CronTaskExecution>> {
+	const since = adminRecentSinceIso(24 * 7);
+
+	const rows = await sql<CronTaskExecution>`
+		SELECT id, task_id, scheduled_at, started_at, completed_at, status, output, error
+		FROM (
+			SELECT
+				id, task_id, scheduled_at, started_at, completed_at, status, output, error,
+				ROW_NUMBER() OVER (PARTITION BY task_id ORDER BY scheduled_at DESC) AS rn
+			FROM cron_task_execution
+			WHERE scheduled_at >= ${since}
+		) ranked
+		WHERE rn <= 20
+		ORDER BY scheduled_at DESC
+	`.execute(DB);
+
+	return rows.rows;
 }
