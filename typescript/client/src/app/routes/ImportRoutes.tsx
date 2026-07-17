@@ -7,7 +7,6 @@ import ChunitachiPage from "#app/pages/dashboard/import/ChunitachiPage";
 import ChunithmMYTExport from "#app/pages/dashboard/import/ChunithmMYTExportPage";
 import ChunithmSiteImportPage from "#app/pages/dashboard/import/ChunithmSiteImportPage";
 import FervidexPage from "#app/pages/dashboard/import/FervidexPage";
-import IIDXCGSiteImportPage from "#app/pages/dashboard/import/IIDXCGSiteImportPage";
 import IIDXEamCSVPage from "#app/pages/dashboard/import/IIDXEamCSVPage";
 import ImportClassPage from "#app/pages/dashboard/import/ImportClassPage";
 import ImportPage from "#app/pages/dashboard/import/ImportPage";
@@ -213,6 +212,9 @@ export default function ImportRoutes() {
 							<Route exact path="/import/cg-dev-jubeat">
 								<CGIntegrationPage cgType="dev" game="jubeat" />
 							</Route>
+							<Route exact path="/import/cg-dev-iidx">
+								<CGIntegrationPage cgType="dev" game="iidx" />
+							</Route>
 
 							<Route exact path="/import/cg-nag-sdvx">
 								<CGIntegrationPage cgType="nag" game="sdvx" />
@@ -225,6 +227,9 @@ export default function ImportRoutes() {
 							</Route>
 							<Route exact path="/import/cg-nag-jubeat">
 								<CGIntegrationPage cgType="nag" game="jubeat" />
+							</Route>
+							<Route exact path="/import/cg-nag-iidx">
+								<CGIntegrationPage cgType="nag" game="iidx" />
 							</Route>
 
 							<Route exact path="/import/cg-gan-sdvx">
@@ -239,9 +244,8 @@ export default function ImportRoutes() {
 							<Route exact path="/import/cg-gan-jubeat">
 								<CGIntegrationPage cgType="gan" game="jubeat" />
 							</Route>
-
-							<Route exact path="/import/kt-cg-iidx-importer">
-								<IIDXCGSiteImportPage />
+							<Route exact path="/import/cg-gan-iidx">
+								<CGIntegrationPage cgType="gan" game="iidx" />
 							</Route>
 
 							<Route exact path="/import/myt-chunithm">
